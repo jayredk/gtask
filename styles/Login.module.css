@@ -1,0 +1,47 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem;
+  min-height: 100vh;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 350px;
+  height: 300px;
+  padding: 2rem;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.h1 {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+.h2 {
+  text-align: center;
+  color: #000;
+}
+
+.loginText {
+  color: #000;
+}
+
+.loginBtn {
+  background-color: #000;
+  color: #fff;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 1rem 2rem;
+}
+
+.errorText {
+  color: red;
+}

@@ -2,10 +2,28 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
 
 const inter = Inter({ subsets: ['latin'] })
 
+const clientID = process.env.NEXT_PUBLIC_CLIENT_ID;
+
 export default function Home() {
+  const router = useRouter()
+
+  useEffect(() => {
+    const { access_token } = router.query;
+
+    if (access_token) {
+      localStorage.setItem('accessToken', access_token);
+    }
+    if (!localStorage.getItem('accessToken')) {
+      router.push('/login');
+    }
+  }, [router])
+
   return (
     <>
       <Head>
@@ -16,6 +34,7 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <div className={styles.description}>
+        <a href={`https://github.com/login/oauth/authorize?client_id=${clientID}&redirect_uri=http://localhost:3000/oauth/redirect`}>GitHub 登入</a>
           <p>
             Get started by editing&nbsp;
             <code className={styles.code}>pages/index.js</code>
