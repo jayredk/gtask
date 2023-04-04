@@ -3,7 +3,6 @@ import { NextResponse as res } from 'next/server'
 const clientID = process.env.NEXT_PUBLIC_CLIENT_ID;
 const clientSecret = process.env.NEXT_PUBLIC_CLIENT_SECRET;
 
-
 export async function middleware(NextRequest) {
   try {
     const code = NextRequest.nextUrl.searchParams.get('code');
@@ -26,7 +25,16 @@ export async function middleware(NextRequest) {
     }
     
     if (access_token) {
-      return res.redirect(new URL(`/?access_token=${access_token}`, NextRequest.nextUrl.origin))
+      const cookieOption = {
+        httpOnly: false,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7 // 設置 cookie 的有效期為一周
+      }
+      const response = res.redirect(new URL(`/`, NextRequest.nextUrl.origin))
+      response.cookies.set('token', access_token, cookieOption)
+
+      return response;
     } else {
       return res.redirect(new URL(`/login/?error=fail`, NextRequest.nextUrl.origin))
     }
@@ -36,9 +44,6 @@ export async function middleware(NextRequest) {
     
     return res.redirect(new URL(`/login/?error=fail`, NextRequest.nextUrl.origin))
   }
-  
-
-  
 }
 
 export const config = {
