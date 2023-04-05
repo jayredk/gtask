@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import taskItemStyles from '@/styles/TaskItem.module.css'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import useSWR from 'swr'
 import Cookies from 'js-cookie'
 import TaskItem from "@/components/TaskItem"
 import TaskList from "@/components/TaskList"
@@ -13,6 +14,9 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const router = useRouter()
   const [data, setData] = useState(null)
+  const [userName, setUserName] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [isSearch, setIsSearch] = useState(false)
   const [sortCreated, setSortCreated] = useState('desc')
   const [labels, setLabels] = useState([])
 
@@ -20,7 +24,7 @@ export default function Home() {
 
   const handleInput = (e) => {
     const oTarget = e.target;
-    console.log(oTarget);
+
     const index = labels.findIndex((el) => el === oTarget.name);
 
     if (index !== -1) {
@@ -29,6 +33,40 @@ export default function Home() {
       setLabels((prevItem) => [...prevItem, oTarget.name]);
     }
   };
+
+  const handleSearchInput = (e) => setSearchInput(e.target.value)
+
+  const handleClick = () => {
+    setIsSearch(true)
+    setTimeout(() => {
+      setIsSearch(false)
+    }, 500);
+  }
+
+  const searchIssue = async (url) => {
+    const accessToken = Cookies.get('token');
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      const data = await response.json();
+      setData(data.items)
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const { searchData } = useSWR(isSearch ? `https://api.github.com/search/issues?q=assignee:${userName}+${searchInput}` : null, searchIssue)
+
+  if (searchData) {
+    setData(searchData)
+  }
 
   useEffect(() => {
     const accessToken = Cookies.get('token');
@@ -47,9 +85,12 @@ export default function Home() {
       })
       const data = await response.json();
       setData(data)
+      if (data[0]) {
+        setUserName(data[0].assignee?.login)
+      }
     }
-    getIssue();
 
+      getIssue();
     
   }, [router, sortCreated, labels])
 
@@ -63,21 +104,21 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <div className={styles.searchBar}>
-          <input type="text" />
-          <button className={styles.btn} type="button">btn</button>
+          <input onInput={handleSearchInput} value={searchInput} type="text" placeholder='Search...' />
+          <button onClick={handleClick} type="button">🔍</button>
         </div>
         <ul className={styles.filterBar}>
           <li>
             <input onInput={handleInput} name='open' id='open' type='checkbox'/>
-            <label className={`${styles.filterBtn} ${labels.includes('open') ? styles.active: ''}`} htmlFor="open">label: Open</label>
+            <label className={`${styles.filterBtn} ${labels.includes('open') ? styles.active: ''}`} htmlFor="open">🗽 label: Open</label>
           </li>
           <li>
             <input onInput={handleInput} name='in progress' id='progress' type='checkbox'/>
-            <label className={`${styles.filterBtn} ${labels.includes('in progress') ? styles.active: ''}`} htmlFor="progress">label: In Progress</label>
+            <label className={`${styles.filterBtn} ${labels.includes('in progress') ? styles.active: ''}`} htmlFor="progress">🚀 label: In Progress</label>
           </li>
           <li>
             <input onInput={handleInput} name='done' id='done' type='checkbox'/>
-            <label className={`${styles.filterBtn} ${labels.includes('done') ? styles.active: ''}`} htmlFor="done">label: Done</label>
+            <label className={`${styles.filterBtn} ${labels.includes('done') ? styles.active: ''}`} htmlFor="done">🦄 label: Done</label>
           </li>
         </ul>
         <div className={styles.toolBar}>
