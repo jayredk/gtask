@@ -4,6 +4,32 @@
   min-height: 100vh;
 }
 
+.filterBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  list-style: none;
+}
+
+.filterBar input {
+  display: none;
+}
+
+.filterBtn {
+  border: 1px solid;
+  border-radius: 30px;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.5rem;
+  transition: color .3s, background-color .3s;
+}
+
+.filterBtn.active {
+  background-color: #000;
+  color: #fff;
+}
+
 .searchBar {
   display: flex;
   background-color: gray;
