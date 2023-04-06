@@ -105,7 +105,11 @@ export default function Home() {
           setUserName(data[0].assignee?.login)
         }
       } catch (error) {
-        console.log(error);
+        MySwal.fire({
+          icon: 'error',
+          title: <strong>發生錯誤</strong>,
+          html: <i>{error}</i>
+        })
       }
     }
 
