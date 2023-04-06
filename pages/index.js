@@ -89,7 +89,7 @@ export default function Home() {
       router.push('/login');
     }
 
-    const getIssue = async () => {
+    const getTasks = async () => {
       try {
         const response = await fetch(`https://api.github.com/issues?state=all&per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
           method: 'GET',
@@ -109,7 +109,7 @@ export default function Home() {
       }
     }
 
-    getIssue();
+    getTasks();
     
   }, [router, sortCreated, labels])
 
