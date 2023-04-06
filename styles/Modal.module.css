@@ -1,0 +1,214 @@
+.dashboard {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: #fff;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  box-shadow: 0px 5px 5px #fff;
+  padding: 2rem;
+  margin: 5rem auto 0;
+  width: 80%;
+  height: 80vh;
+}
+
+.toolBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.menuWrap {
+  position: relative;
+  width: 50px;
+  height: 50px;
+}
+
+.menuToggle {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.menu {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transform-origin: top right;
+  transform: scale(0);
+  transition: transform .3s ease-in;
+}
+
+.menu.active {
+  transform: scale(1);
+}
+
+.menu li {
+  padding: 0.25rem 0;
+}
+
+.menuBtn {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  color: #000;
+  background-color: #fff;
+  transition: background-color .3s ease-in;
+}
+
+.menuBtn.delete {
+  color: red;
+}
+
+.menuBtn:hover {
+  background-color: #eee;
+}
+
+.labelGroup {
+  position: relative;
+}
+
+.labelMenu {
+  width: 200px;
+  position: absolute;
+  top: -6.5rem;
+  left: 100%;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transform-origin: bottom left;
+  transform: scale(0);
+  transition: transform .3s ease-in;
+}
+
+.labelMenu.active {
+  transform: scale(1);
+}
+
+.labelMenu li {
+  padding: 0.25rem 0;
+}
+
+.label {
+  background-color: gray;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  margin: 0 0.5rem;
+}
+
+.labelOpen {
+  color: #666;
+}
+
+.labelProgress {
+  color: red;
+}
+
+.labelDone {
+  color: #0a3;
+}
+
+.open {
+  background-color: #5512AA;
+}
+
+.progress {
+  background-color: #A4E460;
+}
+
+.done {
+  background-color: #AF50A6;
+}
+
+.dots {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #000;
+}
+
+.dot::before, .dot::after {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #000;
+  content: "";
+}
+
+.dot::before {
+  top: -10px;
+}
+
+.dot::after {
+  top: 10px;
+}
+
+.title {
+  margin-bottom: 2rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.form input {
+  font-size: 2rem;
+  background: #fff;
+  color: #000;
+  padding: 0.5rem;
+  border-radius: 3px;
+}
+
+.form textarea {
+  height: 60%;
+  resize:none;
+  background: #fff;
+  color: #000;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 3px;
+}
+
+.btnGroup {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btnGroup button {
+  font-size: 1rem;
+  margin: 0 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+}
+
+.btnGroup .cancel {
+  background-color: rgb(220, 53, 69);
+}

@@ -1,0 +1,19 @@
+.taskItem {
+  background-color: #fff;
+  border: 1px solid gray;
+  border-radius: 10px;
+  box-shadow: 5px 5px 10px #ddd;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.taskItem button {
+  background: transparent;
+  color: #000;
+  border: none;
+  font-size: 1rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.5rem;
+}
