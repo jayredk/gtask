@@ -45,6 +45,10 @@ export default function Home() {
     }, 500);
   }
 
+  const handleEditSuccess = (newData) => {
+    setModalData(newData)
+  }
+
   const searchIssue = async (url) => {
     const accessToken = Cookies.get('token');
 
@@ -144,7 +148,7 @@ export default function Home() {
         { modalData ? (
           <>
             <div onClick={() => setModalData(null)} style={{backgroundColor: "rgba(0, 0, 0, 0.5)", position: "fixed", inset: 0}}></div>
-            <Modal {...modalData}></Modal>
+            <Modal onEditSuccess={handleEditSuccess} {...modalData}></Modal>
           </>
           ) : null}
       </main>
