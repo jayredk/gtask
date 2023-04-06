@@ -53,7 +53,7 @@ export default function Home() {
     setModalData(newData)
   }
 
-  const searchIssue = async (url) => {
+  const searchTask = async (url) => {
     const accessToken = Cookies.get('token');
 
     try {
@@ -76,7 +76,7 @@ export default function Home() {
     }
   }
 
-  const { searchData } = useSWR(isSearch ? `https://api.github.com/search/issues?q=assignee:${userName}+${searchInput}` : null, searchIssue)
+  const { searchData } = useSWR(isSearch ? `https://api.github.com/search/issues?q=assignee:${userName}+${searchInput}` : null, searchTask)
 
   if (searchData) {
     setData(searchData)
