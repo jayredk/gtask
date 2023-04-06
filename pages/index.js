@@ -91,7 +91,7 @@ export default function Home() {
 
     const getTasks = async () => {
       try {
-        const response = await fetch(`https://api.github.com/issues?state=all&per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
+        const response = await fetch(`https://api.github.com/issues?per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
           method: 'GET',
           headers: {
             accept: 'application/vnd.github+json',
