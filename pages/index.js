@@ -145,13 +145,10 @@ export default function Home() {
           </li>
         </ul>
         <div className={styles.toolBar}>
-          <div>
-            <label className={inter.className} htmlFor="sortCreated">建立日期</label>
-            <select name="sortByCreated" id="sortCreated" onChange={handleSortCreated} value={sortCreated}>
-              <option value="desc">從新到舊</option>
-              <option value="asc">從舊到新</option>
-            </select>
-          </div>
+          <select className={styles.sortByCreated} name="sortByCreated" id="sortCreated" onChange={handleSortCreated} value={sortCreated}>
+            <option value="desc">最新任務</option>
+            <option value="asc">最舊任務</option>
+          </select>
         </div>
 
         <TaskList>
