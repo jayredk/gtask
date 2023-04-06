@@ -148,7 +148,7 @@ export default function Home() {
         { modalData ? (
           <>
             <div onClick={() => setModalData(null)} style={{backgroundColor: "rgba(0, 0, 0, 0.5)", position: "fixed", inset: 0}}></div>
-            <Modal onEditSuccess={handleEditSuccess} {...modalData}></Modal>
+            <Modal onEditSuccess={handleEditSuccess} title={modalData.title} body={modalData.body} url={modalData.url} labels={modalData.labels} dataList={data} onSave={setData}></Modal>
           </>
           ) : null}
       </main>

@@ -2,10 +2,14 @@ import { useState } from "react"
 import styles from "../styles/Modal.module.css"
 import { Inter } from 'next/font/google'
 import Cookies from "js-cookie"
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Modal({ title, body, labels, url, onEditSuccess }) {
+export default function Modal({ title, body, labels, url, onEditSuccess, dataList, onSave }) {
   const [isEdit, setIsEdit] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -28,8 +32,21 @@ export default function Modal({ title, body, labels, url, onEditSuccess }) {
 
       const response = await res.json()
 
+      MySwal.fire({
+        icon: 'success',
+        title: <strong>Task 更新成功</strong>,
+      })
+
       onEditSuccess(response)
       setIsEdit(false);
+
+      onSave((prevState) => {
+        const index = dataList.findIndex((task) => task.id === response.id)
+        const newState = [...prevState]
+        newState[index] = response
+
+        return newState
+      })
     } catch (error) {
       console.log(error);
     }
@@ -38,6 +55,22 @@ export default function Modal({ title, body, labels, url, onEditSuccess }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { title, body } = e.target.elements;
+
+    if (title.value.trim() === '') {
+      MySwal.fire({
+        icon: 'error',
+        title: <strong>標題 欄位為必填</strong>,
+      })
+      return;
+    }
+
+    if (body.value.length < 30) {
+      MySwal.fire({
+        icon: 'error',
+        title: <strong>內容 欄位需至少 30 字</strong>,
+      })
+      return;
+    }
 
     const data = {
       title: title.value,
@@ -90,8 +123,8 @@ export default function Modal({ title, body, labels, url, onEditSuccess }) {
       {
         isEdit ? (
           <form onSubmit={handleSubmit} className={styles.form}>
-            <input name="title" className={styles.title} defaultValue={title} type="text"/>
-            <textarea name="body" className={inter.className} defaultValue={body || '' }>
+            <input name="title" className={styles.title} defaultValue={title} placeholder="請輸入標題" type="text"/>
+            <textarea name="body" className={inter.className} defaultValue={body} placeholder="請輸入內容">
             </textarea>
             <div className={styles.btnGroup}>
               <button type="submit">Save</button>
