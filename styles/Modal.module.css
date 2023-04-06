@@ -75,6 +75,32 @@
   background-color: #eee;
 }
 
+.labelGroup {
+  position: relative;
+}
+
+.labelMenu {
+  width: 200px;
+  position: absolute;
+  top: -6.5rem;
+  left: 100%;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transform-origin: bottom left;
+  transform: scale(0);
+  transition: transform .3s ease-in;
+}
+
+.labelMenu.active {
+  transform: scale(1);
+}
+
+.labelMenu li {
+  padding: 0.25rem 0;
+}
+
 .label {
   background-color: gray;
   padding: 0.75rem 1rem;
@@ -84,15 +110,27 @@
   margin: 0 0.5rem;
 }
 
+.labelOpen {
+  color: #666;
+}
+
+.labelProgress {
+  color: red;
+}
+
+.labelDone {
+  color: #0a3;
+}
+
 .open {
   background-color: #5512AA;
 }
 
-.labelProgress {
+.progress {
   background-color: #A4E460;
 }
 
-.labelClosed {
+.done {
   background-color: #AF50A6;
 }
 

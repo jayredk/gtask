@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import styles from "../styles/Modal.module.css"
 import { Inter } from 'next/font/google'
 import Cookies from "js-cookie"
@@ -12,6 +12,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Modal({ title, body, labels, url, onEditSuccess, dataList, onSave }) {
   const [isEdit, setIsEdit] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isLabelEdit, setIsLabelEdit] = useState(false)
 
   const handleInputChange = (e) => {
     setIsMenuOpen(e.target.checked)
@@ -93,16 +94,35 @@ export default function Modal({ title, body, labels, url, onEditSuccess, dataLis
     setIsMenuOpen(false);
   }
 
+  const handleLabelChange = (val) => {
+    const data = {
+      labels: [val],
+    }
+    updateTask(data)
+    setIsLabelEdit(false)
+  }
+
   return (
     <div className={styles.dashboard}>
       <div className={styles.toolBar}>
-        <div>
+        <div className={styles.labelGroup}>
           {labels && labels.map((label) => {
 
             return (
-              <span key={label.name} className={`${styles.label}`}>{label.name}</span>
+              <button key={label.name} onClick={() => setIsLabelEdit(!isLabelEdit)}  className={`${styles.label}`} type="button">{label.name}</button>
             )
           })}
+          <ul className={`${styles.labelMenu} ${isLabelEdit ? styles.active : ''}`}>
+            <li>
+              <button onClick={() => handleLabelChange('open')} className={`${styles.menuBtn} ${styles.labelOpen}`} type="button">Open</button>
+            </li>
+            <li>
+              <button onClick={() => handleLabelChange('in progress')} className={`${styles.menuBtn} ${styles.labelProgress}`} type="button">In Progress</button>
+            </li>
+            <li>
+              <button onClick={() => handleLabelChange('done')} className={`${styles.menuBtn} ${styles.labelDone}`} type="button">Done</button>
+            </li>
+          </ul>
         </div>
         
         <div className={styles.menuWrap}>
