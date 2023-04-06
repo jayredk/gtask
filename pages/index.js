@@ -8,12 +8,14 @@ import useSWR from 'swr'
 import Cookies from 'js-cookie'
 import TaskItem from "@/components/TaskItem"
 import TaskList from "@/components/TaskList"
+import Modal from '@/components/modal'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const router = useRouter()
   const [data, setData] = useState(null)
+  const [modalData, setModalData] = useState(null)
   const [userName, setUserName] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [isSearch, setIsSearch] = useState(false)
@@ -129,16 +131,22 @@ export default function Home() {
               <option value="asc">從舊到新</option>
             </select>
           </div>
-          
         </div>
 
         <TaskList>
           { data && data.map(task => (
-            <TaskItem key={task.id} className={taskItemStyles.taskItem}>{task.title}</TaskItem>
+            <TaskItem key={task.id} className={taskItemStyles.taskItem}>
+              <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
+            </TaskItem>
             )
           )}
         </TaskList>
-
+        { modalData ? (
+          <>
+            <div onClick={() => setModalData(null)} style={{backgroundColor: "rgba(0, 0, 0, 0.5)", position: "fixed", inset: 0}}></div>
+            <Modal {...modalData}></Modal>
+          </>
+          ) : null}
       </main>
     </>
   )
