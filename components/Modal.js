@@ -12,16 +12,8 @@ export default function Modal({ title, body, labels, url, onEditSuccess }) {
   const handleInputChange = (e) => {
     setIsMenuOpen(e.target.checked)
   }
-
-  const updateTask = async (e) => {
-    e.preventDefault();
-    const { title, body } = e.target.elements;
-
-    const data = {
-      title: title.value,
-      body: body.value,
-    }
-
+  
+  const updateTask = async (data) => {
     try {
       const accessToken = Cookies.get('token')
 
@@ -37,9 +29,30 @@ export default function Modal({ title, body, labels, url, onEditSuccess }) {
       const response = await res.json()
 
       onEditSuccess(response)
+      setIsEdit(false);
     } catch (error) {
       console.log(error);
     }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { title, body } = e.target.elements;
+
+    const data = {
+      title: title.value,
+      body: body.value,
+    }
+
+    updateTask(data)    
+  }
+
+  const handleDelete = () => {
+    const data = {
+      state: 'closed'
+    }
+    updateTask(data)
+    setIsMenuOpen(false);
   }
 
   const handelEditBtn = () => {
@@ -69,14 +82,14 @@ export default function Modal({ title, body, labels, url, onEditSuccess }) {
               <button onClick={handelEditBtn} className={styles.menuBtn} type="button">Edit</button>
             </li>
             <li>
-              <button className={`${styles.menuBtn} ${styles.delete}`} type="button">Delete</button>
+              <button onClick={handleDelete} className={`${styles.menuBtn} ${styles.delete}`} type="button">Delete</button>
             </li>
           </ul>
         </div>
       </div>
       {
         isEdit ? (
-          <form onSubmit={updateTask} className={styles.form}>
+          <form onSubmit={handleSubmit} className={styles.form}>
             <input name="title" className={styles.title} defaultValue={title} type="text"/>
             <textarea name="body" className={inter.className} defaultValue={body || '' }>
             </textarea>
