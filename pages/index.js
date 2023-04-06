@@ -9,6 +9,10 @@ import Cookies from 'js-cookie'
 import TaskItem from "@/components/TaskItem"
 import TaskList from "@/components/TaskList"
 import Modal from '@/components/modal'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -64,7 +68,11 @@ export default function Home() {
       setData(data.items)
       
     } catch (error) {
-      console.log(error);
+      MySwal.fire({
+        icon: 'error',
+        title: <strong>發生錯誤</strong>,
+        html: <i>{error}</i>
+      })
     }
   }
 
@@ -82,21 +90,26 @@ export default function Home() {
     }
 
     const getIssue = async () => {
-      const response = await fetch(`https://api.github.com/issues?state=all&per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
-        method: 'GET',
-        headers: {
-          accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${accessToken}`
+      try {
+        const response = await fetch(`https://api.github.com/issues?state=all&per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
+          method: 'GET',
+          headers: {
+            accept: 'application/vnd.github+json',
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        const data = await response.json();
+        setData(data)
+
+        if (data[0]) {
+          setUserName(data[0].assignee?.login)
         }
-      })
-      const data = await response.json();
-      setData(data)
-      if (data[0]) {
-        setUserName(data[0].assignee?.login)
+      } catch (error) {
+        console.log(error);
       }
     }
 
-      getIssue();
+    getIssue();
     
   }, [router, sortCreated, labels])
 
