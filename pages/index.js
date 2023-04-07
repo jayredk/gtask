@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image';
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import useSWR from 'swr'
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2'
@@ -18,6 +18,7 @@ import spinner from '@/public/spinner.svg'
 const MySwal = withReactContent(Swal)
 
 export default function Home() {
+  const [page, setPage] = useState(1)
   const [modalData, setModalData] = useState(null)
   const [userName, setUserName] = useState('')
   const [searchInput, setSearchInput] = useState('')
@@ -25,7 +26,23 @@ export default function Home() {
   const [sortCreated, setSortCreated] = useState('desc')
   const [labels, setLabels] = useState([])
 
-  const { tasks, loading, error, setTasks } = useGetTasks({sortCreated, labels, setUserName});
+  const { tasks, hasMore, loading, error, setTasks } = useGetTasks({page, sortCreated, labels, setUserName});
+
+  const observer = useRef()
+  const lastTaskRef = useCallback((node) => {
+    if (loading) return
+    if (observer.current) {
+      observer.current.disconnect()
+    }
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage((prevPage => prevPage + 1))
+      }
+    })
+    if (node) observer.current.observe(node)
+  }, [loading, hasMore])
+
 
   const handleSortCreated = (e) => setSortCreated(e.target.value);
 
@@ -118,12 +135,21 @@ export default function Home() {
         </div>
 
         <TaskList>
-          { tasks && tasks.map(task => (
-            <TaskItem key={task.id} className={taskItemStyles.taskItem}>
-              <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
-            </TaskItem>
-            )
-          )}
+          { tasks && tasks.map((task, index) => {
+            if (tasks.length === index + 1) {
+              return (
+                <TaskItem ref={lastTaskRef} key={task.id} className={taskItemStyles.taskItem}>
+                  <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
+                </TaskItem>
+              )
+            } else {
+              return (
+                <TaskItem key={task.id} className={taskItemStyles.taskItem}>
+                  <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
+                </TaskItem>
+              )
+            }
+          })}
         </TaskList>
         {loading && (
           <Image src={spinner} style={{display: 'block', margin: '0 auto'}} width="200" height="200" alt='spinner'></Image>
