@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 import { apiGetTasks } from "@/api";
+import { useAuth } from "./useAuth";
 
 const MySwal = withReactContent(Swal)
 
@@ -15,17 +14,13 @@ export default function useGetTasks({ page, sortCreated, labels, setUserName }) 
   const [hasMore, setHasMore] = useState(true);
   const hasEffectRun = useRef(false);
 
-  const router = useRouter();
-
-  const accessToken = Cookies.get('token');
+  const {accessToken, hasToken} = useAuth();
 
   useEffect(() => {
-    if (!accessToken) {
-      router.push('/login');
-    }
-
     const getTasks = async () => {
       try {
+        if (hasToken === false) return;
+
         setLoading(true);
         setError(false);
 
@@ -54,7 +49,7 @@ export default function useGetTasks({ page, sortCreated, labels, setUserName }) 
       getTasks();
     }
     
-  }, [router, accessToken, labels, page, setUserName, sortCreated])
+  }, [accessToken, hasToken, labels, page, setUserName, sortCreated])
 
   return { tasks, hasMore, loading, error, setTasks }
 }
