@@ -14,17 +14,20 @@ export default function useGetTasks({ page, sortCreated, labels, setUserName }) 
   const [hasMore, setHasMore] = useState(true);
   const hasEffectRun = useRef(false);
 
-  const {accessToken, hasToken} = useAuth();
+  const accessToken = useAuth();
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
     const getTasks = async () => {
       try {
-        if (hasToken === false) return;
+        if (accessToken === '') return;
 
         setLoading(true);
         setError(false);
 
-        const data = await apiGetTasks({page, sortCreated, labels, accessToken});
+        const data = await apiGetTasks({page, sortCreated, labels, accessToken, signal});
 
         setTasks((prevData) => [...prevData, ...data]);
         setHasMore(data.length === 10)
@@ -48,8 +51,12 @@ export default function useGetTasks({ page, sortCreated, labels, setUserName }) 
     } else {
       getTasks();
     }
+
+    return () => {
+      abortController.abort();
+    }
     
-  }, [accessToken, hasToken, labels, page, setUserName, sortCreated])
+  }, [accessToken, labels, page, setUserName, sortCreated])
 
   return { tasks, hasMore, loading, error, setTasks }
 }

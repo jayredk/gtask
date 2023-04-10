@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 export function useAuth() {
   const router = useRouter();
   const [accessToken, setAccessToken] = useState('');
-  const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -15,8 +14,7 @@ export function useAuth() {
     } else {
       setAccessToken(token);
     }
-    setHasToken(true);
   }, [router])
 
-  return { accessToken, hasToken };
+  return accessToken;
 }
