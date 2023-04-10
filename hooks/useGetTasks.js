@@ -4,6 +4,8 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
+import { apiGetTasks } from "@/api";
+
 const MySwal = withReactContent(Swal)
 
 export default function useGetTasks({ page, sortCreated, labels, setUserName }) {
@@ -26,15 +28,9 @@ export default function useGetTasks({ page, sortCreated, labels, setUserName }) 
       try {
         setLoading(true);
         setError(false);
-        
-        const response = await fetch(`https://api.github.com/issues?page=${page}&per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
-          method: 'GET',
-          headers: {
-            accept: 'application/vnd.github+json',
-            Authorization: `Bearer ${accessToken}`
-          }
-        })
-        const data = await response.json();
+
+        const data = await apiGetTasks({page, sortCreated, labels, accessToken});
+
         setTasks((prevData) => [...prevData, ...data]);
         setHasMore(data.length === 10)
 
