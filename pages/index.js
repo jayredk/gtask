@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image';
 import { useState, useRef, useCallback } from 'react'
-import useSWR from 'swr'
 import Cookies from 'js-cookie';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -12,6 +11,7 @@ import useGetTasks from '@/hooks/useGetTasks'
 
 import styles from '@/styles/Home.module.css'
 import spinner from '@/public/spinner.svg'
+import { apiSearchTasks } from '@/api';
 
 const MySwal = withReactContent(Swal)
 
@@ -19,10 +19,9 @@ export default function Home() {
   const [page, setPage] = useState(1)
   const [modalData, setModalData] = useState(null)
   const [userName, setUserName] = useState('')
-  const [searchInput, setSearchInput] = useState('')
-  const [isSearch, setIsSearch] = useState(false)
   const [sortCreated, setSortCreated] = useState('desc')
   const [labels, setLabels] = useState([])
+  const searchInput = useRef()
 
   const { tasks, hasMore, loading, error, setTasks } = useGetTasks({page, sortCreated, labels, setUserName});
 
@@ -56,31 +55,15 @@ export default function Home() {
     }
   };
 
-  const handleSearchInput = (e) => setSearchInput(e.target.value)
-
-  const handleClick = () => {
-    setIsSearch(true)
-    setTimeout(() => {
-      setIsSearch(false)
-    }, 500);
-  }
-
   const handleEditSuccess = (newData) => {
     setModalData(newData)
   }
 
-  const searchTask = async (url) => {
+  const searchTask = async () => {
     const accessToken = Cookies.get('token');
-
+    const query = searchInput.current.value;
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      const data = await response.json();
+      const data = await apiSearchTasks({userName, searchInput: query, accessToken});
       setTasks(data.items)
       
     } catch (error) {
@@ -90,12 +73,6 @@ export default function Home() {
         html: <i>{error}</i>
       })
     }
-  }
-
-  const { searchData } = useSWR(isSearch ? `https://api.github.com/search/issues?q=assignee:${userName}+${searchInput}` : null, searchTask)
-
-  if (searchData) {
-    setTasks(searchData)
   }
 
   return (
@@ -108,8 +85,8 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <div className={styles.searchBar}>
-          <input onInput={handleSearchInput} value={searchInput} type="text" placeholder='Search...' />
-          <button onClick={handleClick} type="button">🔍</button>
+          <input ref={searchInput} type="text" placeholder='Search...' />
+          <button onClick={() => searchTask()} type="button">🔍</button>
         </div>
         <ul className={styles.filterBar}>
           <li>
