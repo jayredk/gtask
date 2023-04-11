@@ -6,13 +6,11 @@ import Cookies from 'js-cookie';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
-import TaskItem from "@/components/TaskItem"
 import TaskList from "@/components/TaskList"
 import Modal from '@/components/Modal'
 import useGetTasks from '@/hooks/useGetTasks'
 
 import styles from '@/styles/Home.module.css'
-import taskItemStyles from '@/styles/TaskItem.module.css'
 import spinner from '@/public/spinner.svg'
 
 const MySwal = withReactContent(Swal)
@@ -134,23 +132,8 @@ export default function Home() {
           </select>
         </div>
 
-        <TaskList>
-          { tasks && tasks.map((task, index) => {
-            if (tasks.length === index + 1) {
-              return (
-                <TaskItem ref={lastTaskRef} key={task.id} className={taskItemStyles.taskItem}>
-                  <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
-                </TaskItem>
-              )
-            } else {
-              return (
-                <TaskItem key={task.id} className={taskItemStyles.taskItem}>
-                  <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
-                </TaskItem>
-              )
-            }
-          })}
-        </TaskList>
+        <TaskList tasks={tasks} lastTaskRef={lastTaskRef} setModalData={setModalData} />
+
         {loading && (
           <Image src={spinner} style={{display: 'block', margin: '0 auto'}} width="200" height="200" alt='spinner'></Image>
           )}
