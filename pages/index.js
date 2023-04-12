@@ -1,30 +1,45 @@
 import Head from 'next/head'
-import styles from '@/styles/Home.module.css'
-import { Inter } from 'next/font/google'
-import taskItemStyles from '@/styles/TaskItem.module.css'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import useSWR from 'swr'
-import Cookies from 'js-cookie'
-import TaskItem from "@/components/TaskItem"
-import TaskList from "@/components/TaskList"
-import Modal from '@/components/modal'
+import Image from 'next/image';
+import { useState, useRef, useCallback } from 'react'
+import Cookies from 'js-cookie';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
+import TaskList from "@/components/TaskList"
+import Modal from '@/components/Modal'
+import useGetTasks from '@/hooks/useGetTasks'
+
+import styles from '@/styles/Home.module.css'
+import spinner from '@/public/spinner.svg'
+import { apiSearchTasks } from '@/api';
+
 const MySwal = withReactContent(Swal)
 
-const inter = Inter({ subsets: ['latin'] })
-
 export default function Home() {
-  const router = useRouter()
-  const [data, setData] = useState(null)
+  const [page, setPage] = useState(1)
   const [modalData, setModalData] = useState(null)
   const [userName, setUserName] = useState('')
-  const [searchInput, setSearchInput] = useState('')
-  const [isSearch, setIsSearch] = useState(false)
   const [sortCreated, setSortCreated] = useState('desc')
   const [labels, setLabels] = useState([])
+  const searchInput = useRef()
+
+  const { tasks, hasMore, loading, error, setTasks } = useGetTasks({page, sortCreated, labels, setUserName});
+
+  const observer = useRef()
+  const lastTaskRef = useCallback((node) => {
+    if (loading) return
+    if (observer.current) {
+      observer.current.disconnect()
+    }
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage((prevPage => prevPage + 1))
+      }
+    })
+    if (node) observer.current.observe(node)
+  }, [loading, hasMore])
+
 
   const handleSortCreated = (e) => setSortCreated(e.target.value);
 
@@ -40,32 +55,16 @@ export default function Home() {
     }
   };
 
-  const handleSearchInput = (e) => setSearchInput(e.target.value)
-
-  const handleClick = () => {
-    setIsSearch(true)
-    setTimeout(() => {
-      setIsSearch(false)
-    }, 500);
-  }
-
   const handleEditSuccess = (newData) => {
     setModalData(newData)
   }
 
-  const searchTask = async (url) => {
+  const searchTask = async () => {
     const accessToken = Cookies.get('token');
-
+    const query = searchInput.current.value;
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${accessToken}`
-        }
-      })
-      const data = await response.json();
-      setData(data.items)
+      const data = await apiSearchTasks({userName, searchInput: query, accessToken});
+      setTasks(data.items)
       
     } catch (error) {
       MySwal.fire({
@@ -75,47 +74,6 @@ export default function Home() {
       })
     }
   }
-
-  const { searchData } = useSWR(isSearch ? `https://api.github.com/search/issues?q=assignee:${userName}+${searchInput}` : null, searchTask)
-
-  if (searchData) {
-    setData(searchData)
-  }
-
-  useEffect(() => {
-    const accessToken = Cookies.get('token');
-
-    if (!accessToken) {
-      router.push('/login');
-    }
-
-    const getTasks = async () => {
-      try {
-        const response = await fetch(`https://api.github.com/issues?per_page=10&direction=${sortCreated}&labels=${labels.toString()}`, {
-          method: 'GET',
-          headers: {
-            accept: 'application/vnd.github+json',
-            Authorization: `Bearer ${accessToken}`
-          }
-        })
-        const data = await response.json();
-        setData(data)
-
-        if (data[0]) {
-          setUserName(data[0].assignee?.login)
-        }
-      } catch (error) {
-        MySwal.fire({
-          icon: 'error',
-          title: <strong>發生錯誤</strong>,
-          html: <i>{error}</i>
-        })
-      }
-    }
-
-    getTasks();
-    
-  }, [router, sortCreated, labels])
 
   return (
     <>
@@ -127,8 +85,8 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <div className={styles.searchBar}>
-          <input onInput={handleSearchInput} value={searchInput} type="text" placeholder='Search...' />
-          <button onClick={handleClick} type="button">🔍</button>
+          <input ref={searchInput} type="text" placeholder='Search...' />
+          <button onClick={() => searchTask()} type="button">🔍</button>
         </div>
         <ul className={styles.filterBar}>
           <li>
@@ -151,18 +109,17 @@ export default function Home() {
           </select>
         </div>
 
-        <TaskList>
-          { data && data.map(task => (
-            <TaskItem key={task.id} className={taskItemStyles.taskItem}>
-              <button onClick={() => setModalData(task)} type='button'>{task.title}</button>
-            </TaskItem>
-            )
+        <TaskList tasks={tasks} lastTaskRef={lastTaskRef} setModalData={setModalData} />
+
+        {loading && (
+          <Image src={spinner} style={{display: 'block', margin: '0 auto'}} width="200" height="200" alt='spinner'></Image>
           )}
-        </TaskList>
+        {error && <div>Error</div>}
+        
         { modalData ? (
           <>
             <div onClick={() => setModalData(null)} style={{backgroundColor: "rgba(0, 0, 0, 0.5)", position: "fixed", inset: 0}}></div>
-            <Modal onEditSuccess={handleEditSuccess} title={modalData.title} body={modalData.body} url={modalData.url} labels={modalData.labels} dataList={data} onSave={setData}></Modal>
+            <Modal onEditSuccess={handleEditSuccess} title={modalData.title} body={modalData.body} url={modalData.url} labels={modalData.labels} dataList={tasks} onSave={setTasks}></Modal>
           </>
           ) : null}
       </main>
