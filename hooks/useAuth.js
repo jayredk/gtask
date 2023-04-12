@@ -10,7 +10,8 @@ export function useAuth() {
     const token = Cookies.get('token');
 
     if (!token) {
-      return router.push('/login');
+      router.push('/login');
+      return;
     } else {
       setAccessToken(token);
     }
